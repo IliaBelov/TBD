@@ -227,44 +227,106 @@ as
 select * 
 from PopHobby
 26.
+CREATE VIEW StudentView
+AS SELECT name AS surname, birthday, n_group
+FROM student
 
+select *
+from StudentView
 27.
-
+select SUBSTRING(name, 1, 1),Max(score)
+from student
+where score > 3.6
+group by SUBSTRING(name, 1, 1)
 28.
-
+select substr(n_group::varchar, 1, 1),surname,Max(score),Min(score)
+from student
+group by substr(n_group::varchar, 1, 1),surname
+order by surname DESC
 29.
-
+select EXTRACT(Year from student.birthday), count(student_hobby.hobby_id)
+from student_hobby
+	inner join student on student_hobby.student_id = student.id
+	inner join hobby on student_hobby.hobby_id = hobby.id
+group by EXTRACT(Year from student.birthday)
 30.
-
+select SUBSTRING(student.name, 1, 1),Max(hobby.risk),Min(hobby.risk)
+from student_hobby
+	inner join student on student_hobby.student_id = student.id
+	inner join hobby on student_hobby.hobby_id = hobby.id
+group by SUBSTRING(student.name, 1, 1)
 31.
-
+select EXTRACT(month from student.birthday), AVG(score)
+from student_hobby
+	inner join student on student_hobby.student_id = student.id
+	inner join hobby on student_hobby.hobby_id = hobby.id
+where hobby.name = 'football'
+group by EXTRACT(month from student.birthday)
 32.
-
+select distinct student.name,student.surname,student.n_group
+from student_hobby
+	inner join student on student_hobby.student_id = student.id
+	inner join hobby on student_hobby.hobby_id = hobby.id
+where student.id = student_hobby.student_id
 33.
-
+select surname,
+	case
+		when position('ov' in surname) = 0 then 'не найдено'
+		else position('ov' in surname)::varchar
+	end
+from student
 34.
-
+select RPAD(surname,10,'#')
+from student
 35.
-
+Select TRIM(Trailing '#' from RPAD(surname,10,'#')) 
+from student
+/*Both, Leading*/
 36.
-
+Select '2018-05-01'::date-'2018-04-01'::date
 37.
-
+SELECT 
+case 
+	when EXTRACT(dow FROM now()) = 1 then Now()::date+5
+	when EXTRACT(dow FROM now()) = 2 then Now()::date+4
+	when EXTRACT(dow FROM now()) = 3 then Now()::date+3
+	when EXTRACT(dow FROM now()) = 4 then Now()::date+2
+	when EXTRACT(dow FROM now()) = 5 then Now()::date+1
+	when EXTRACT(dow FROM now()) = 6 then Now()::date+0
+	when EXTRACT(dow FROM now()) = 7 then Now()::date+6
+	else Now()
+end
 38.
-
+SELECT extract(century from now())as century,
+extract(week from now())as week,
+extract(doy from now())as dayofyear
 39.
-
+SELECT student.name, student.surname,hobby.name,
+case
+	when student_hobby.finished_at is null then 'закончил'
+	else 'занимается'
+end
+from student_hobby
+	inner join student on student_hobby.student_id = student.id
+	inner join hobby on student_hobby.hobby_id = hobby.id
+where student.id = student_hobby.student_id
 40.
 
-41.
+select n_group as groups, 
+count(score) filter(WHERE round(score) = '2') as "2",
+count(score) filter(WHERE round(score) = '3') as "3",
+count(score)filter(WHERE round(score) = '4') as "4",
+count(score) filter(WHERE round(score) = '5') as "5"
+from student 
+group by n_group
+order by n_group ASC
 
-42.??????????????
-select Distinct(ROUND(student.score)),student.n_group, count(student.id) 
-from student
-pivot
-(
-	
-)
-piv
-group by ROUND(student.score), student.n_group
-order by ROUND(student.score) ASC
+
+??select round(score),
+??	count(n_group) filter(WHERE round(score) = '2') n_group,
+??	count(n_group) filter(WHERE round(score) = '3') n_group,
+??	count(n_group)filter(WHERE round(score) = '4') n_group,
+??	count(n_group) filter(WHERE round(score) = '5') n_group
+??from student 
+??group by ROUND(score)
+??order by ROUND(score) ASC
